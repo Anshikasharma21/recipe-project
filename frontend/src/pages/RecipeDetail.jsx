@@ -9,7 +9,7 @@ export default function RecipeDetail() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const { data } = await API.get(`/recipes/${id}`);
+        const { data } = await API.get(`/api/recipes/${id}`);
         setRecipe(data);
       } catch (err) {
         console.log(err);
@@ -21,7 +21,7 @@ export default function RecipeDetail() {
   const handleDownload = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await API.get(`/recipes/download/${id}`, {
+      const response = await API.get(`/api/recipes/download/${id}`, {
         responseType: "blob",
         headers: { Authorization: `Bearer ${token}` },
       });
