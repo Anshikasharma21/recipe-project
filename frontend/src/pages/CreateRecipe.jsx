@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast"; // 🔥 ADDED
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -13,6 +14,8 @@ export default function CreateRecipe() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const toastId = toast.loading("Publishing recipe..."); // 🔥 ADDED
+
     try {
       const formData = new FormData();
       formData.append("title", title);
@@ -24,115 +27,297 @@ export default function CreateRecipe() {
 
       await API.post("/recipes", formData, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      alert("Recipe Created Successfully");
-      navigate("/home");
+      toast.success("Recipe Created Successfully", { id: toastId }); // 🔥 REPLACES alert
 
+      navigate("/home");
     } catch (err) {
       console.log(err);
-      alert(err.response?.data?.message || "Error");
+
+      toast.error(err.response?.data?.message || "Error", {
+        id: toastId,
+      }); // 🔥 REPLACES alert
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        <h2 style={styles.title}>Create Recipe</h2>
+        *, *::before, *::after {
+          margin: 0; padding: 0; box-sizing: border-box;
+        }
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        .cr-page {
+          min-height: 100vh;
+          background: #faf8f4;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 48px 20px;
+          font-family: 'DM Sans', sans-serif;
+        }
 
-          <input
-            type="text"
-            placeholder="Title"
-            style={styles.input}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+        .cr-card {
+          width: 100%;
+          max-width: 540px;
+          background: #fff;
+          border-radius: 28px;
+          overflow: hidden;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08);
+        }
 
-          <input
-            type="text"
-            placeholder="Ingredients"
-            style={styles.input}
-            onChange={(e) => setIngredients(e.target.value)}
-          />
+        /* Hero strip */
+        .cr-hero {
+          background: linear-gradient(135deg, #2d2217 0%, #4a3728 100%);
+          padding: 36px 44px 30px;
+          position: relative;
+          overflow: hidden;
+        }
 
-          <textarea
-            placeholder="Instructions"
-            style={styles.textarea}
-            onChange={(e) => setInstructions(e.target.value)}
-          />
+        .cr-hero::after {
+          content: '✍️';
+          position: absolute;
+          right: 28px;
+          bottom: -8px;
+          font-size: 80px;
+          opacity: 0.13;
+          line-height: 1;
+        }
 
-          <input
-            type="file"
-            style={styles.input}
-            onChange={(e) => setImage(e.target.files[0])}
-          />
+        .cr-eyebrow {
+          font-size: 10px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #c8a882;
+          font-weight: 500;
+          margin-bottom: 8px;
+        }
 
-          <button type="submit" style={styles.button}>
-            Create
-          </button>
+        .cr-heading {
+          font-family: 'Fraunces', serif;
+          font-size: 34px;
+          font-weight: 600;
+          color: #faf5ef;
+          line-height: 1.1;
+        }
 
-        </form>
+        .cr-heading em {
+          font-style: italic;
+          color: #c8a882;
+        }
 
+        /* Body */
+        .cr-body {
+          padding: 36px 44px 44px;
+        }
+
+        .cr-form {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .cr-field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .cr-label {
+          font-size: 10px;
+          letter-spacing: 0.13em;
+          text-transform: uppercase;
+          color: #c8a882;
+          font-weight: 500;
+        }
+
+        .cr-input {
+          width: 100%;
+          height: 50px;
+          background: #faf8f4;
+          border: 1.5px solid #ede8e0;
+          border-radius: 12px;
+          padding: 0 16px;
+          color: #2d2217;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none;
+          transition: border-color 0.2s, background 0.2s;
+        }
+
+        .cr-input::placeholder { color: #c8b9ac; }
+
+        .cr-input:focus {
+          border-color: #4a3728;
+          background: #fff;
+        }
+
+        .cr-textarea {
+          width: 100%;
+          background: #faf8f4;
+          border: 1.5px solid #ede8e0;
+          border-radius: 12px;
+          padding: 14px 16px;
+          color: #2d2217;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none;
+          min-height: 110px;
+          resize: none;
+          line-height: 1.6;
+          transition: border-color 0.2s, background 0.2s;
+        }
+
+        .cr-textarea::placeholder { color: #c8b9ac; }
+
+        .cr-textarea:focus {
+          border-color: #4a3728;
+          background: #fff;
+        }
+
+        /* File input */
+        .cr-file-label {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          height: 50px;
+          background: #faf8f4;
+          border: 1.5px dashed #d8cfC4;
+          border-radius: 12px;
+          padding: 0 16px;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+        }
+
+        .cr-file-label:hover {
+          border-color: #4a3728;
+          background: #f5f0ea;
+        }
+
+        .cr-file-icon {
+          font-size: 18px;
+          opacity: 0.6;
+        }
+
+        .cr-file-text {
+          font-size: 13px;
+          color: #9c8878;
+          font-weight: 300;
+        }
+
+        .cr-file-input {
+          display: none;
+        }
+
+        .cr-divider {
+          height: 1px;
+          background: #f0ece4;
+          margin: 4px 0;
+        }
+
+        .cr-btn-submit {
+          width: 100%;
+          height: 52px;
+          border: none;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #2d2217, #4a3728);
+          color: #faf5ef;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .cr-btn-submit:hover {
+          opacity: 0.88;
+          transform: translateY(-1px);
+        }
+
+        .cr-btn-submit:active { transform: translateY(0); }
+
+        @media (max-width: 560px) {
+          .cr-hero { padding: 28px 28px 24px; }
+          .cr-body { padding: 28px 28px 36px; }
+        }
+      `}</style>
+
+      <div className="cr-page">
+        <div className="cr-card">
+
+          {/* Hero */}
+          <div className="cr-hero">
+            <p className="cr-eyebrow">New Recipe</p>
+            <h2 className="cr-heading">Create a<br /><em>Recipe.</em></h2>
+          </div>
+
+          {/* Form */}
+          <div className="cr-body">
+            <form onSubmit={handleSubmit} className="cr-form">
+
+              <div className="cr-field">
+                <label className="cr-label">Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Spaghetti Carbonara"
+                  className="cr-input"
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              <div className="cr-field">
+                <label className="cr-label">Ingredients</label>
+                <input
+                  type="text"
+                  placeholder="e.g. pasta, eggs, pancetta…"
+                  className="cr-input"
+                  onChange={(e) => setIngredients(e.target.value)}
+                />
+              </div>
+
+              <div className="cr-field">
+                <label className="cr-label">Instructions</label>
+                <textarea
+                  placeholder="Describe the steps to make this recipe…"
+                  className="cr-textarea"
+                  onChange={(e) => setInstructions(e.target.value)}
+                />
+              </div>
+
+              <div className="cr-field">
+                <label className="cr-label">Image</label>
+                <label className="cr-file-label">
+                  <span className="cr-file-icon">📷</span>
+                  <span className="cr-file-text">
+                    {image ? image.name : "Choose a photo…"}
+                  </span>
+                  <input
+                    type="file"
+                    className="cr-file-input"
+                    onChange={(e) => setImage(e.target.files[0])}
+                  />
+                </label>
+              </div>
+
+              <div className="cr-divider" />
+
+              <button type="submit" className="cr-btn-submit">
+                Publish Recipe
+              </button>
+
+            </form>
+          </div>
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    background: "#f2f2f2",
-  },
-
-  card: {
-    background: "white",
-    padding: "30px",
-    borderRadius: "10px",
-    width: "320px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-    textAlign: "center",
-  },
-
-  title: {
-    marginBottom: "20px",
-  },
-
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-
-  input: {
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    outline: "none",
-  },
-
-  textarea: {
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    outline: "none",
-    minHeight: "80px",
-    resize: "none",
-  },
-
-  button: {
-    padding: "10px",
-    background: "black",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-};
