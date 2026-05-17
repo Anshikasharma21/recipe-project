@@ -14,7 +14,7 @@ export default function Register() {
     e.preventDefault();
     const toastId = toast.loading("Creating account...");
     try {
-      await API.post("/auth/register", { username, email, password });
+      await API.post("/api/auth/register", { username, email, password });
       toast.success("Register Successful", { id: toastId });
       navigate("/");
     } catch (err) {

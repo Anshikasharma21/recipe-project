@@ -12,7 +12,7 @@ export default function Login() {
     e.preventDefault();
     const toastId = toast.loading("Signing in...");
     try {
-      const { data } = await API.post("/auth/login", { email, password });
+      const { data } = await API.post("/api/auth/login", { email, password });
       localStorage.setItem("token", data.token);
       toast.success("Login Successful", { id: toastId });
       navigate("/home");
