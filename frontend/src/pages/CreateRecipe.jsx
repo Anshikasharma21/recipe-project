@@ -25,7 +25,7 @@ export default function CreateRecipe() {
 
       const token = localStorage.getItem("token");
 
-      await API.post("/recipes", formData, {
+      await API.post("/api/recipes", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

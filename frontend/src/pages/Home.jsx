@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const { data } = await API.get("/recipes");
+        const { data } = await API.get("/api/recipes");
         setRecipes(data);
       } catch (err) {
         console.log(err);
